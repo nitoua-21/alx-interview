@@ -35,50 +35,23 @@ def isWinner(x, nums):
     Returns:
         str: Name of the player with most wins, or None if no clear winner
     """
-    # Validate input
-    if x <= 0 or not nums:
+    if x < 1 or not nums:
         return None
-
-    # Count Maria and Ben's wins
-    maria_wins = 0
-    ben_wins = 0
-
-    # Play each round
-    for n in nums:
-        # No primes to pick
-        if n < 2:
-            ben_wins += 1
+    marias_wins, bens_wins = 0, 0
+    # generate primes with a limit of the maximum number in nums
+    n = max(nums)
+    primes = [True for _ in range(1, n + 1, 1)]
+    primes[0] = False
+    for i, is_prime in enumerate(primes, 1):
+        if i == 1 or not is_prime:
             continue
-
-        # Create a set of remaining numbers
-        numbers = set(range(1, n + 1))
-        current_player = "Maria"
-
-        # Continue until no primes remain
-        while True:
-            # Find available primes
-            primes = [num for num in numbers if isPrime(num)]
-
-            # No primes available
-            if not primes:
-                # If current player can't move, other player wins
-                if current_player == "Maria":
-                    ben_wins += 1
-                else:
-                    maria_wins += 1
-                break
-
-            # Pick smallest prime and remove it and its multiples
-            prime = min(primes)
-            numbers = {num for num in numbers if num % prime != 0}
-
-            # Switch players
-            current_player = "Ben" if current_player == "Maria" else "Maria"
-
-    # Determine overall winner
-    if maria_wins > ben_wins:
-        return "Maria"
-    elif ben_wins > maria_wins:
-        return "Ben"
-
-    return None
+        for j in range(i + i, n + 1, i):
+            primes[j - 1] = False
+    # filter the number of primes less than n in nums for each round
+    for _, n in zip(range(x), nums):
+        primes_count = len(list(filter(lambda x: x, primes[0: n])))
+        bens_wins += primes_count % 2 == 0
+        marias_wins += primes_count % 2 == 1
+    if marias_wins == bens_wins:
+        return None
+    return 'Maria' if marias_wins > bens_wins else 'Ben'
